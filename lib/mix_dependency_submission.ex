@@ -1,0 +1,2 @@
+defmodule MixDependencySubmission do
+end
