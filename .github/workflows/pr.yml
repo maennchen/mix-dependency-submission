@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    branches:
+      - "*"
+  workflow_dispatch: {}
+
+name: "Pull Request"
+
+jobs:
+  test:
+    name: "Test"
+
+    uses: ./.github/workflows/part_test.yml
+
+  build:
+    name: "Build"
+
+    uses: ./.github/workflows/part_build.yml
+
+  docs:
+    name: "Docs"
+
+    uses: ./.github/workflows/part_docs.yml
+
+  dependabot:
+    name: "Dependabot"
+
+    if: ${{ github.actor == 'dependabot[bot]'}}
+
+    uses: ./.github/workflows/part_dependabot.yml
+
+  report_deps:
+    name: "Report Dependencies"
+
+    needs: ['build']
+
+    uses: ./.github/workflows/part_report_deps.yml

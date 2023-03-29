@@ -1,0 +1,70 @@
+on:
+  workflow_call:
+    inputs:
+      releaseName:
+        required: false
+        type: string
+
+name: "Build"
+
+jobs:
+  escript:
+    name: "EScript"
+
+    runs-on: ubuntu-latest
+
+    env:
+      MIX_ENV: prod
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-elixir@v1
+        id: setupBEAM
+        with:
+          version-file: '.tool-versions'
+          version-type: strict
+      - uses: actions/cache@v3
+        with:
+          path: deps
+          key: deps-${{ runner.os }}-${{ steps.setupBEAM.outputs.otp-version }}-${{ steps.setupBEAM.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ steps.setupBEAM.outputs.otp-version }}-${{ steps.setupBEAM.outputs.elixir-version }}-
+      - run: mix deps.get
+      - uses: actions/cache@v3
+        with:
+          path: _build/${{ env.MIX_ENV }}
+          key: compile-${{ env.MIX_ENV }}-${{ runner.os }}-${{ steps.setupBEAM.outputs.otp-version }}-${{ steps.setupBEAM.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            compile-${{ env.MIX_ENV }}-${{ runner.os }}-${{ steps.setupBEAM.outputs.otp-version }}-${{ steps.setupBEAM.outputs.elixir-version }}-
+      - run: mix deps.compile
+      - run: mix compile --warning-as-errors
+      - run: mix escript.build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: escript
+          path: mix_dependency_submission
+
+  upload:
+    name: "Upload"
+
+    runs-on: ubuntu-latest
+
+    if: ${{ inputs.releaseName }}
+
+    needs: ['escript']
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: escript
+          path: mix_dependency_submission
+      - name: Upload
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload --clobber "${{ inputs.releaseName }}" \
+            mix_dependency_submission
