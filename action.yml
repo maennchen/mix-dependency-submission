@@ -1,0 +1,43 @@
+name: 'Mix Depdendency Submission'
+description: 'Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API'
+author: 'JOSHMARTIN GmbH'
+inputs:
+  token:
+    description: "GitHub Personal Access Token (PAT). Defaults to PAT provided by Action runner"
+    required: false
+    default: ${{ github.token }}
+  project-name:
+    required: true
+    description: 'Application name of the project'
+  project-path:
+    required: true
+    description: 'Repo path to the rebar.lock file used to detect dependencies. Defaults to rebar.lock in the root of the repository.'
+    default: '${{ github.workspace }}'
+runs:
+  using: 'composite'
+  steps:
+    - uses: erlef/setup-beam@v1
+      with:
+        elixir-version: 1.14.3
+        otp-version: 25.3
+        install-hex: true
+        version-type: strict
+    - uses: robinraju/release-downloader@v1.7
+      with:
+        repository: 'jshmrtn/mix-dependency-submission'
+        tag: "v0.1.0-internal.test.1"
+        fileName: "mix_dependency_submission"
+        out-file-path: "${{ runner.temp }}"
+    - run: |
+        mix \
+          escript.install \
+          "${{ runner.temp }}/mix_dependency_submission" \
+          --force
+      shell: 'bash'
+      working-directory: '${{ runner.temp }}'
+    - run: |
+        mix_dependency_submission \
+          --project-path="${{ inputs.project-path }}" \
+          --github-token="${{ inputs.token }}" \
+          ${{ inputs.project-name }}
+      shell: 'bash'

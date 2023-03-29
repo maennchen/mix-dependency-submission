@@ -1,0 +1,45 @@
+on:
+  push:
+    tags:
+      - "v[12].[0-9]+.[0-9]+-beta.[0-9]+"
+
+name: "Unstable Tag"
+
+jobs:
+  release:
+    name: Create Release
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh release create \
+            --repo ${{ github.repository }} \
+            --title ${{ github.ref_name }} \
+            --generate-notes \
+            --prerelease \
+            ${{ github.ref_name }}
+
+  build:
+    name: "Build"
+
+    needs: ["release"]
+
+    uses: ./.github/workflows/part_build.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
+
+  docs:
+    name: "Docs"
+
+    needs: ["release"]
+
+    uses: ./.github/workflows/part_docs.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
