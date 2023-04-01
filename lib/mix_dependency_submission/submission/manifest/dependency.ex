@@ -2,11 +2,11 @@ defmodule MixDependencySubmission.Submission.Manifest.Dependency do
   @moduledoc false
 
   @type t :: %__MODULE__{
-          package_url: String.t() | nil,
+          package_url: Purl.t() | nil,
           metadata: %{optional(String.t()) => String.t() | integer() | float() | boolean()} | nil,
           relationship: :direct | :indirect | nil,
           scope: :runtime | :development | nil,
-          dependencies: [String.t()] | nil
+          dependencies: [Purl.t()] | nil
         }
 
   @enforce_keys []
@@ -30,25 +30,32 @@ defmodule MixDependencySubmission.Submission.Manifest.Dependency do
   defp package_url(dep, all_deps)
 
   defp package_url(%Mix.Dep{scm: Hex.SCM, opts: opts} = dep, all_deps) do
-    namespace =
-      case opts[:repo] do
-        nil -> ""
-        "hexpm" -> ""
-        "hexpm/" <> team -> team <> "/"
-        other -> other <> "/"
-      end
-
-    "pkg:hex/#{namespace}#{opts[:hex]}@#{package_version(dep, all_deps)}"
+    Purl.new!(%Purl{
+      type: "hex",
+      namespace:
+        case opts[:repo] do
+          nil -> []
+          "hexpm" -> []
+          "hexpm/" <> team -> [team]
+          other -> [other]
+        end,
+      name: opts[:hex],
+      version: package_version(dep, all_deps)
+    })
   end
 
   defp package_url(%Mix.Dep{app: app, scm: Mix.SCM.Git, opts: opts} = dep, all_deps) do
-    case opts[:git] do
-      "https://github.com/" <> path ->
-        repo = String.replace_trailing(path, ".git", "")
-        "pkg:github/#{repo}@#{package_version(dep, all_deps)}"
+    case Purl.from_resource_uri(opts[:git]) do
+      {:ok, purl} ->
+        %Purl{purl | version: package_version(dep, all_deps)}
 
-      git_url ->
-        "pkg:generic/#{app}@#{package_version(dep, all_deps)}?vcs_url=#{git_url}"
+      :error ->
+        Purl.new!(%Purl{
+          type: "generic",
+          name: app,
+          version: package_version(dep, all_deps),
+          qualifiers: %{"vcs_url" => opts[:git]}
+        })
     end
   end
 
@@ -83,6 +90,8 @@ defmodule MixDependencySubmission.Submission.Manifest.Dependency do
       |> Map.from_struct()
       |> Enum.reject(&match?({_key, nil}, &1))
       |> Map.new()
+      |> update_in([:package_url], &Purl.to_string/1)
+      |> update_in([:dependencies, Access.all()], &Purl.to_string/1)
       |> Jason.Encode.map(opts)
     end
   end

@@ -77,7 +77,8 @@ defmodule MixDependencySubmission.MixProject do
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},
       {:req, "~> 0.3.6"},
-      {:castore, "~> 1.0"}
+      {:castore, "~> 1.0"},
+      {:purl, "~> 0.1.1"}
     ]
   end
 end
