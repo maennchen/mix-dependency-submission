@@ -2,7 +2,7 @@
 defmodule MixDependencySubmission.MixProject do
   use Mix.Project
 
-  @version "0.0.0-dev"
+  @version "1.0.0-beta.1"
   @source_url "https://github.com/jshmrtn/mix-dependency-submission"
   @description """
   :warning: This repository is not ready for use. Please check back later.
