@@ -49,8 +49,6 @@ defmodule MixDependencySubmission do
 
   @spec manifest(file_path :: String.t()) :: Submission.Manifest.t()
   defp manifest(file_path) do
-    deps = Mix.Dep.cached()
-
     %Submission.Manifest{
       name: file_path,
       file: %Submission.Manifest.File{
@@ -58,10 +56,14 @@ defmodule MixDependencySubmission do
       },
       metadata: %{},
       resolved:
-        deps
-        |> Enum.map(&{&1.app, Dependency.mix_dependency_to_manifest(&1, deps)})
-        |> Enum.filter(&match?({_app, {:ok, _dependency}}, &1))
-        |> Map.new(fn {app, {:ok, dependency}} -> {app, dependency} end)
+        Mix.Project.deps_scms()
+        |> Enum.map(fn {app, _scm} = dep ->
+          with {:ok, dependency} <- Dependency.mix_dependency_to_manifest(dep) do
+            {:ok, {app, dependency}}
+          end
+        end)
+        |> Enum.filter(&match?({:ok, {_app, _dependency}}, &1))
+        |> Map.new(fn {:ok, {app, dependency}} -> {app, dependency} end)
     }
   end
 end
