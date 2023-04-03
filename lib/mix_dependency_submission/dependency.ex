@@ -12,37 +12,31 @@ defmodule MixDependencySubmission.Dependency do
 
   alias MixDependencySubmission.Submission.Manifest.Dependency
 
-  @callback mix_dependency_to_package_url(dep :: Mix.Dep.t()) ::
+  @type lock :: %{optional(atom()) => list()}
+
+  @callback mix_dependency_to_package_url(dep :: atom(), lock :: list() | nil) ::
               {:ok, Purl.t()} | :error
 
   @doc false
-  @spec mix_dependency_to_manifest(dep :: Mix.Dep.t(), all_deps :: [Mix.Dep.t()]) ::
+  @spec mix_dependency_to_manifest({dep :: atom(), scm :: module()}, lock :: lock()) ::
           {:ok, MixDependencySubmission.Submission.Manifest.Dependency.t()} | :error
-  def mix_dependency_to_manifest(
-        %Mix.Dep{app: app, scm: scm, top_level: top_level} = dep,
-        all_deps
-      ) do
+  def mix_dependency_to_manifest({dep, scm}, lock \\ read_package_lock()) do
+    dep_lock =
+      case lock do
+        %{^dep => dep_lock} -> Tuple.to_list(dep_lock)
+        %{} -> nil
+      end
+
     with {:ok, scm_module} <- scm_impl_module(scm),
-         {:ok, purl} <- scm_module.mix_dependency_to_package_url(dep) do
+         {:ok, purl} <- scm_module.mix_dependency_to_package_url(dep, dep_lock) do
       {:ok,
        %Dependency{
          package_url: purl,
-         metadata: %{name: app},
-         relationship: if(top_level, do: :direct, else: :indirect),
+         metadata: %{name: dep},
+         relationship: if(dep in child_apps(dep), do: :direct, else: :indirect),
          scope: mix_dependency_scope(dep),
-         dependencies: get_resolved_child_dependencies(dep, all_deps)
+         dependencies: get_resolved_child_dependencies(dep, lock)
        }}
-    end
-  end
-
-  @spec resolve_version(
-          dep :: Mix.Dep.t(),
-          lock_callback :: (list() -> {:ok, Purl.version()} | :error)
-        ) :: {:ok, Purl.version()} | :error
-  def resolve_version(%Mix.Dep{} = dep, lock_callback \\ fn _lock -> :error end) do
-    case package_version_from_lock(dep, lock_callback) do
-      {:ok, version} -> {:ok, version}
-      :error -> package_version_from_dep(dep)
     end
   end
 
@@ -53,23 +47,24 @@ defmodule MixDependencySubmission.Dependency do
     ArgumentError -> :error
   end
 
-  # Child Dependencies do not have version resolved. Therefore matching with
-  # the dependencies on the root level.
-  @spec get_resolved_child_dependencies(dep :: Mix.Dep.t(), all_deps :: [Mix.Dep.t()]) :: [
-          Mix.Dep.t()
-        ]
-  defp get_resolved_child_dependencies(%Mix.Dep{deps: deps}, all_deps) do
-    all_deps
-    |> Enum.filter(fn %Mix.Dep{app: app} ->
-      Enum.any?(deps, &match?(%Mix.Dep{app: ^app}, &1))
-    end)
-    |> Enum.map(&mix_dependency_to_manifest(&1, all_deps))
+  @spec get_resolved_child_dependencies(dep :: atom(), lock :: lock()) :: [Purl.t()]
+  defp get_resolved_child_dependencies(dep, lock) do
+    dep
+    |> deps_scms()
+    |> Map.delete(dep)
+    |> Enum.map(&mix_dependency_to_manifest(&1, lock))
     |> Enum.filter(&match?({:ok, _package_url}, &1))
     |> Enum.map(fn {:ok, package_url} -> package_url end)
   end
 
-  @spec mix_dependency_scope(dep :: Mix.Dep.t()) :: :runtime | :development
-  defp mix_dependency_scope(%Mix.Dep{opts: opts}) do
+  @spec mix_dependency_scope(dep :: atom()) :: :runtime | :development
+  defp mix_dependency_scope(dep) do
+    opts =
+      case dependency_install_options(dep) do
+        {:ok, opts} -> opts
+        :error -> []
+      end
+
     runtime = Keyword.get(opts, :runtime, true)
 
     only =
@@ -85,18 +80,71 @@ defmodule MixDependencySubmission.Dependency do
     end
   end
 
-  @spec package_version_from_lock(dep :: Mix.Dep.t(), callback :: (list() -> result)) :: result
-        when result: {:ok, Purl.version()} | :error
-  defp package_version_from_lock(%Mix.Dep{opts: opts}, callback) do
-    with {:ok, lock} <- Keyword.fetch(opts, :lock) do
-      lock |> Tuple.to_list() |> callback.()
+  @spec read_package_lock :: lock()
+  defp read_package_lock do
+    lockfile =
+      Path.absname(Mix.Project.config()[:lockfile], Path.dirname(Mix.Project.project_file()))
+
+    opts = [file: lockfile, warn_on_unnecessary_quotes: false]
+
+    with {:ok, contents} <- File.read(lockfile),
+         {:ok, quoted} <- Code.string_to_quoted(contents, opts),
+         {%{} = lock, _binding} <- Code.eval_quoted(quoted, [], opts) do
+      lock
+    else
+      _other -> %{}
     end
   end
 
-  @spec package_version_from_dep(dep :: Mix.Dep.t()) :: {:ok, Purl.version()} | :error
-  defp package_version_from_dep(dep)
-  defp package_version_from_dep(%Mix.Dep{status: {:ok, version}}), do: {:ok, version}
-  defp package_version_from_dep(%Mix.Dep{}), do: :error
+  @spec dependency_install_options(dep :: atom()) :: {:ok, Keyword.t()} | :error
+  defp dependency_install_options(dep) do
+    with {:ok, deps} <- Keyword.fetch(Mix.Project.config(), :deps) do
+      Enum.find_value(deps, :error, fn
+        {^dep, _version_requirement, opts} when is_list(opts) -> {:ok, opts}
+        {^dep, opts} when is_list(opts) -> {:ok, opts}
+        {^dep, version_requirement} when is_binary(version_requirement) -> {:ok, []}
+        _other -> false
+      end)
+    end
+  end
+
+  @spec dependency_scm_options(dep :: atom()) :: Keyword.t()
+  def dependency_scm_options(dep) do
+    %{^dep => scm} = Mix.Project.deps_scms(parents: [dep], depth: 1)
+
+    opts =
+      case dependency_install_options(dep) do
+        {:ok, opts} -> opts
+        :error -> []
+      end
+
+    scm.accepts_options(dep, opts)
+  end
+
+  @spec child_apps(dep :: atom()) :: [atom()]
+  if function_exported?(Mix.Project, :deps_tree, 1) do
+    defp child_apps(dep) do
+      %{^dep => child_apps} = Mix.Project.deps_tree(parents: [dep], depth: 1)
+    end
+  else
+    # TODO: Remove when only supporting Elixir >= 1.15
+    defp child_apps(dep) do
+      %Mix.Dep{deps: deps} = Enum.find(Mix.Dep.cached(), &match?(%Mix.Dep{app: ^dep}, &1))
+      Enum.map(deps, & &1.app)
+    end
+  end
+
+  @spec deps_scms(dep :: atom()) :: %{optional(atom) => module()}
+  if Version.match?(System.version(), "~> 1.15") do
+    defp deps_scms(dep), do: Mix.Project.deps_scms(parents: [dep], depth: 2)
+  else
+    # TODO: Remove when only supporting Elixir >= 1.15
+    defp deps_scms(dep) do
+      %Mix.Dep{deps: deps} = Enum.find(Mix.Dep.cached(), &match?(%Mix.Dep{app: ^dep}, &1))
+
+      Map.new(deps, &{&1.app, &1.scm})
+    end
+  end
 end
 
 defmodule MixDependencySubmission.Dependency.Mix.SCM.Git do
@@ -107,16 +155,13 @@ defmodule MixDependencySubmission.Dependency.Mix.SCM.Git do
   alias MixDependencySubmission.Dependency
 
   @impl Dependency
-  def mix_dependency_to_package_url(%Mix.Dep{app: app, scm: Mix.SCM.Git, opts: opts} = dep) do
+  def mix_dependency_to_package_url(dep, lock) do
+    opts = Dependency.dependency_scm_options(dep)
+
     version =
-      dep
-      |> Dependency.resolve_version(fn
-        [:git, _repo_url, ref | _rest] -> {:ok, ref}
-        _other -> :error
-      end)
-      |> case do
-        {:ok, version} -> version
-        :error -> nil
+      case lock do
+        [:git, _repo_url, ref | _rest] -> ref
+        _other -> nil
       end
 
     case Purl.from_resource_uri(opts[:git]) do
@@ -127,7 +172,7 @@ defmodule MixDependencySubmission.Dependency.Mix.SCM.Git do
         {:ok,
          Purl.new!(%Purl{
            type: "generic",
-           name: app,
+           name: Atom.to_string(dep),
            version: version,
            qualifiers: %{"vcs_url" => opts[:git]}
          })}
@@ -143,16 +188,13 @@ defmodule MixDependencySubmission.Dependency.Hex.SCM do
   alias MixDependencySubmission.Dependency
 
   @impl Dependency
-  def mix_dependency_to_package_url(%Mix.Dep{scm: Hex.SCM, opts: opts} = dep) do
+  def mix_dependency_to_package_url(dep, lock) do
+    opts = Dependency.dependency_scm_options(dep)
+
     version =
-      dep
-      |> Dependency.resolve_version(fn
-        [:hex, _hex_package_name, version | _rest] -> {:ok, version}
-        _other -> :error
-      end)
-      |> case do
-        {:ok, version} -> version
-        :error -> nil
+      case lock do
+        [:hex, _hex_package_name, version | _rest] -> version
+        _other -> nil
       end
 
     qualifiers =
@@ -165,7 +207,7 @@ defmodule MixDependencySubmission.Dependency.Hex.SCM do
      Purl.new!(%Purl{
        type: "hex",
        namespace: hex_namespace(opts[:repo]),
-       name: opts[:hex],
+       name: Keyword.get(opts, :hex, Atom.to_string(dep)),
        version: version,
        qualifiers: qualifiers
      })}
