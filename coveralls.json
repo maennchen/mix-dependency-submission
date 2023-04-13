@@ -1,0 +1,3 @@
+{
+  "skip_files": ["lib/mix_dependency_submission/cli.ex"]
+}

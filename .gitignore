@@ -27,3 +27,8 @@ mix_dependency_submission-*.tar
 
 # Escript
 /mix_dependency_submission
+
+# Fixture Applications
+priv/test/fixtures/*/*
+!priv/test/fixtures/*/mix.exs
+!priv/test/fixtures/*/mix.lock

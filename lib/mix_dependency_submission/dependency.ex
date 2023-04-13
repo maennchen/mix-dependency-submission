@@ -83,7 +83,7 @@ defmodule MixDependencySubmission.Dependency do
        %Dependency{
          package_url: purl,
          metadata: %{name: dep},
-         relationship: if(dep in child_apps(dep), do: :direct, else: :indirect),
+         relationship: if(dep in child_apps(), do: :direct, else: :indirect),
          scope: mix_dependency_scope(dep),
          dependencies: get_resolved_child_dependencies(dep, lock)
        }}
@@ -103,8 +103,8 @@ defmodule MixDependencySubmission.Dependency do
     |> deps_scms()
     |> Map.delete(dep)
     |> Enum.map(&mix_dependency_to_manifest(&1, lock))
-    |> Enum.filter(&match?({:ok, _package_url}, &1))
-    |> Enum.map(fn {:ok, package_url} -> package_url end)
+    |> Enum.filter(&match?({:ok, _dep}, &1))
+    |> Enum.map(fn {:ok, %Dependency{package_url: package_url}} -> package_url end)
   end
 
   @spec mix_dependency_scope(dep :: atom()) :: :runtime | :development
@@ -183,16 +183,17 @@ defmodule MixDependencySubmission.Dependency do
     scm.accepts_options(dep, opts)
   end
 
-  @spec child_apps(dep :: atom()) :: [atom()]
+  @spec child_apps :: [atom()]
   if function_exported?(Mix.Project, :deps_tree, 1) do
-    defp child_apps(dep) do
-      %{^dep => child_apps} = Mix.Project.deps_tree(parents: [dep], depth: 1)
+    defp child_apps do
+      %{^dep => child_apps} = Mix.Project.deps_tree(depth: 1)
     end
   else
     # TODO: Remove when only supporting Elixir >= 1.15
-    defp child_apps(dep) do
-      %Mix.Dep{deps: deps} = Enum.find(Mix.Dep.cached(), &match?(%Mix.Dep{app: ^dep}, &1))
-      Enum.map(deps, & &1.app)
+    defp child_apps do
+      Mix.Dep.cached()
+      |> Enum.filter(&match?(%Mix.Dep{top_level: true}, &1))
+      |> Enum.map(& &1.app)
     end
   end
 
