@@ -10,7 +10,7 @@
 > Action that calculates dependencies for Mix and submits the list to the
 > GitHub Dependency Submission API.
 
-See [the documentation][docs].
+To add support for new `Mix.SCM` implementations, see [the documentation][docs].
 
 ## Installation
 
@@ -35,6 +35,18 @@ jobs:
         with:
           project-name: '[Project Application Name]'
 ```
+
+## Action Configuration
+
+### Inputs
+
+* `token` - GitHub Token to use for the submission. Defaults to `${{ github.token }}`.
+* `project-name` - The name of the project. (`mix.exs` / `project/0` / `:app`)
+* `project-path` - The path to the the project. Defaults to `${{ github.workspace }}`.
+
+### Outputs
+
+None
 
 ## License
 

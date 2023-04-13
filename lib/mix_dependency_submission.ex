@@ -1,7 +1,5 @@
 defmodule MixDependencySubmission do
-  @moduledoc """
-  Create Submission
-  """
+  @moduledoc false
 
   alias MixDependencySubmission.Dependency
   alias MixDependencySubmission.Submission
