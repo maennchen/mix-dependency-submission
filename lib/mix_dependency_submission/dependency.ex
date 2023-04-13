@@ -8,17 +8,67 @@ defmodule MixDependencySubmission.Dependency do
   To define the SCM in a way so that it is recognized by this library, define a
   module called `MixDependencySubmission.Dependency.[SCM Module Name]` and
   it will be automatically be picked up.
+
+  ## Examples
+
+  For a fictional `ASDF.SCM` `Mix.SCM` implementation:
+
+      defmodule MixDependencySubmission.Dependency.ASDF.SCM do
+        @behaviour MixDependencySubmission.Dependency
+
+        @impl MixDependencySubmission.Dependency
+        def mix_dependency_to_package_url(dep) do
+          {:ok, Purl.parse!("pkg:generic/\#{dep}")}
+        end
+      end
   """
 
   alias MixDependencySubmission.Submission.Manifest.Dependency
 
-  @type lock :: %{optional(atom()) => list()}
+  @typep deps_lock :: %{optional(atom()) => lock()}
 
-  @callback mix_dependency_to_package_url(dep :: atom(), lock :: list() | nil) ::
+  @typedoc """
+  Lock for the dependency as a list.
+
+  **Always only match the start of the list. The list can be extended to include
+  further contents in the future at the end of the list.**
+
+  ## Examples
+
+      [
+        :hex,
+        :jason,
+        "1.4.0",
+        "e855647bc964a44e2f67df589ccf49105ae039d4179db7f6271dfd3843dc27e6",
+        [:mix],
+        [
+          {:decimal, "~> 1.0 or ~> 2.0",
+          [hex: :decimal, repo: "hexpm", optional: true]}
+        ],
+        "hexpm",
+        "79a3791085b2a0f743ca04cec0f7be26443738779d09302e01318f97bdb82121"
+      ]
+
+  """
+  @type lock :: list()
+
+  @doc """
+  Create a package url for the given `dep`.
+
+  ## Examples
+
+        iex> MixDependencySubmission.Dependency.Hex.SCM.mix_dependency_to_package_url(:credo)
+        {:ok, Purl.parse!("pkg:hex/credo@1.7.0")}
+
+        iex> MixDependencySubmission.Dependency.Hex.SCM.mix_dependency_to_package_url(:invalid)
+        :error
+
+  """
+  @callback mix_dependency_to_package_url(dep :: atom(), lock :: lock() | nil) ::
               {:ok, Purl.t()} | :error
 
   @doc false
-  @spec mix_dependency_to_manifest({dep :: atom(), scm :: module()}, lock :: lock()) ::
+  @spec mix_dependency_to_manifest({dep :: atom(), scm :: module()}, lock :: deps_lock()) ::
           {:ok, MixDependencySubmission.Submission.Manifest.Dependency.t()} | :error
   def mix_dependency_to_manifest({dep, scm}, lock \\ read_package_lock()) do
     dep_lock =
@@ -47,7 +97,7 @@ defmodule MixDependencySubmission.Dependency do
     ArgumentError -> :error
   end
 
-  @spec get_resolved_child_dependencies(dep :: atom(), lock :: lock()) :: [Purl.t()]
+  @spec get_resolved_child_dependencies(dep :: atom(), lock :: deps_lock()) :: [Purl.t()]
   defp get_resolved_child_dependencies(dep, lock) do
     dep
     |> deps_scms()
@@ -80,7 +130,7 @@ defmodule MixDependencySubmission.Dependency do
     end
   end
 
-  @spec read_package_lock :: lock()
+  @spec read_package_lock :: deps_lock()
   defp read_package_lock do
     lockfile =
       Path.absname(Mix.Project.config()[:lockfile], Path.dirname(Mix.Project.project_file()))
@@ -108,6 +158,18 @@ defmodule MixDependencySubmission.Dependency do
     end
   end
 
+  @doc """
+  Get Dependency Options from `mix.exs` / `deps/0`
+
+  ## Examples
+
+      iex> MixDependencySubmission.Dependency.dependency_scm_options(:credo)
+      [hex: "credo", only: [:dev], runtime: false, repo: "hexpm"]
+
+      iex> MixDependencySubmission.Dependency.dependency_scm_options(:invalid)
+      []
+
+  """
   @spec dependency_scm_options(dep :: atom()) :: Keyword.t()
   def dependency_scm_options(dep) do
     %{^dep => scm} = Mix.Project.deps_scms(parents: [dep], depth: 1)
