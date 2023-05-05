@@ -22,7 +22,7 @@ runs:
         otp-version: 25.3
         install-hex: true
         version-type: strict
-    - uses: robinraju/release-downloader@v1.7
+    - uses: robinraju/release-downloader@v1.8
       with:
         repository: 'jshmrtn/mix-dependency-submission'
         tag: "v1.0.0-beta.1"
