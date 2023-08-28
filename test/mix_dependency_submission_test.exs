@@ -31,7 +31,7 @@ defmodule MixDependencySubmissionTest do
                      userinfo: nil,
                      host: "github.com",
                      port: 443,
-                     path: "/jshmrtn/mix-dependency-submission",
+                     path: "/maennchen/mix-dependency-submission",
                      query: nil,
                      fragment: nil
                    }

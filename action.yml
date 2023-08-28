@@ -24,7 +24,7 @@ runs:
         version-type: strict
     - uses: robinraju/release-downloader@v1.7
       with:
-        repository: 'jshmrtn/mix-dependency-submission'
+        repository: 'maennchen/mix-dependency-submission'
         tag: "v1.0.0-beta.1"
         fileName: "mix_dependency_submission"
         out-file-path: "${{ runner.temp }}"
