@@ -3,6 +3,9 @@ on:
 
 name: "Dependabot"
 
+permissions:
+  contents: read
+
 jobs:
   automerge_dependabot:
     name: "Automerge PRs"
@@ -14,6 +17,11 @@ jobs:
       contents: write
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+
       - uses: fastify/github-action-merge-dependabot@c3bde0759d4f24db16f7b250b2122bc2df57e817 # v3.11.0
         with:
           github-token: ${{ github.token }}
