@@ -1,6 +1,9 @@
-name: 'Mix Depdendency Submission'
-description: 'Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API'
-author: 'JOSHMARTIN GmbH'
+name: "Mix Depdendency Submission"
+description: "Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API"
+author: "Jonatan Männchen"
+branding:
+  icon: arrow-up
+  color: blue
 inputs:
   token:
     description: "GitHub Personal Access Token (PAT). Defaults to PAT provided by Action runner"
@@ -8,36 +11,48 @@ inputs:
     default: ${{ github.token }}
   project-name:
     required: true
-    description: 'Application name of the project'
+    description: "Application name of the project"
   project-path:
     required: true
-    description: 'Repo path to the rebar.lock file used to detect dependencies. Defaults to rebar.lock in the root of the repository.'
-    default: '${{ github.workspace }}'
+    description: "Repo path to the rebar.lock file used to detect dependencies. Defaults to rebar.lock in the root of the repository."
+    default: "${{ github.workspace }}"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-    - uses: erlef/setup-beam@v1
+    - name: "Install Beam"
+      uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
       with:
         elixir-version: 1.17.3
         otp-version: 27.1.2
         install-hex: true
         version-type: strict
-    - uses: robinraju/release-downloader@v1.11
+    - name: "Download Dependency Submission Tool"
+      uses: robinraju/release-downloader@a96f54c1b5f5e09e47d9504526e96febd949d4c2 # v1.11
       with:
-        repository: 'maennchen/mix-dependency-submission'
-        tag: "v1.0.0-beta.1"
+        repository: "maennchen/mix-dependency-submission"
+        tag: "v1.0.0-beta.2"
         fileName: "mix_dependency_submission"
         out-file-path: "${{ runner.temp }}"
-    - run: |
+    - name: "Verify Dependency Submission Tool Provenance"
+      run: |
+        gh attestation \
+          verify \
+          --repo maennchen/mix-dependency-submission \
+          "${{ runner.temp }}/mix_dependency_submission"
+      shell: "bash"
+      working-directory: "${{ runner.temp }}"
+    - name: "Install Dependency Submission Tool"
+      run: |
         mix \
           escript.install \
           "${{ runner.temp }}/mix_dependency_submission" \
           --force
-      shell: 'bash'
-      working-directory: '${{ runner.temp }}'
-    - run: |
+      shell: "bash"
+      working-directory: "${{ runner.temp }}"
+    - name: "Submit Dependencies"
+      run: |
         mix_dependency_submission \
           --project-path="${{ inputs.project-path }}" \
           --github-token="${{ inputs.token }}" \
           ${{ inputs.project-name }}
-      shell: 'bash'
+      shell: "bash"

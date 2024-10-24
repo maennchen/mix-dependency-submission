@@ -9,7 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: "Setup BEAM"
-      uses: erlef/setup-elixir@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
+      uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
       id: setupBEAM
       with:
         version-file: .tool-versions

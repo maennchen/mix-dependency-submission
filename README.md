@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: maennchen/mix-dependency-submission@v1.0.0-beta.1
+      - uses: maennchen/mix-dependency-submission@v1.0.0-beta.2
         with:
           project-name: '[Project Application Name]'
 ```
