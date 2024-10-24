@@ -22,7 +22,7 @@ runs:
         otp-version: 27.1.2
         install-hex: true
         version-type: strict
-    - uses: robinraju/release-downloader@v1.7
+    - uses: robinraju/release-downloader@v1.11
       with:
         repository: 'maennchen/mix-dependency-submission'
         tag: "v1.0.0-beta.1"
