@@ -39,11 +39,11 @@ jobs:
       - name: "Attest provenance"
         uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
         id: attest-provenance
-        if: "${{ github.event.inputs.attest }}"
+        if: "${{ inputs.attest }}"
         with:
           subject-path: 'mix_dependency_submission'
       - name: "Copy provenance"
-        if: "${{ github.event.inputs.attest }}"
+        if: "${{ inputs.attest }}"
         run: cp "$ATTESTATION" mix_dependency_submission.sigstore
         env:
           ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"

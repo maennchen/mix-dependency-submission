@@ -29,7 +29,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Create draft prerelease
+      - name: Create prerelease
         if: ${{ !inputs.stable }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -62,9 +62,11 @@ jobs:
           name: escript
           path: .
 
-      - name: Upload Docs
+      - name: Upload Artifacts
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          gh release upload --clobber "${{ inputs.releaseName }}" \
+          gh release upload \
+            --repo ${{ github.repository }} \
+            --clobber "${{ inputs.releaseName }}" \
             docs.tar.gz* mix_dependency_submission*
