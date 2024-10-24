@@ -2,7 +2,6 @@
 
 :warning: This repository is not ready for use. Please check back later.
 
-[![hex.pm badge](https://img.shields.io/badge/Package%20on%20hex.pm-informational)](https://hex.pm/packages/mix_dependency_submission)
 [![Documentation badge](https://img.shields.io/badge/Documentation-ff69b4)][docs]
 [![.github/workflows/branch_main.yml](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml)
 [![Coverage Status](https://coveralls.io/repos/github/maennchen/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/maennchen/mix-dependency-submission?branch=main)
@@ -32,8 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: maennchen/mix-dependency-submission@v1.0.0-beta.2
-        with:
-          project-name: '[Project Application Name]'
 ```
 
 ## Action Configuration
@@ -41,7 +38,6 @@ jobs:
 ### Inputs
 
 * `token` - GitHub Token to use for the submission. Defaults to `${{ github.token }}`.
-* `project-name` - The name of the project. (`mix.exs` / `project/0` / `:app`)
 * `project-path` - The path to the the project. Defaults to `${{ github.workspace }}`.
 
 ### Outputs
@@ -51,6 +47,7 @@ None
 ## License
 
 Copyright 2023 JOSHMARTIN GmbH
+Copyright 2025 Erlang Ecosystem Foundation
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.

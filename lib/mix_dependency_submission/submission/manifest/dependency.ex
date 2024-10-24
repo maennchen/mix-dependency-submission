@@ -20,7 +20,7 @@ defmodule MixDependencySubmission.Submission.Manifest.Dependency do
       |> Enum.reject(&match?({_key, nil}, &1))
       |> Map.new()
       |> update_in([:package_url], &Purl.to_string/1)
-      |> update_in([:dependencies, Access.all()], &Purl.to_string(&1.package_url))
+      |> update_in([:dependencies, Access.all()], &Purl.to_string/1)
       |> Jason.Encode.map(opts)
     end
   end

@@ -1,5 +1,6 @@
 # The directory Mix will write compiled artifacts to.
 /_build/
+/burrito_out
 
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
@@ -24,9 +25,6 @@ mix_dependency_submission-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
-
-# Escript
-/mix_dependency_submission
 
 # Fixture Applications
 priv/test/fixtures/*/*

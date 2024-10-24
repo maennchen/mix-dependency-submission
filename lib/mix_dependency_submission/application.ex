@@ -1,5 +1,9 @@
-defmodule MixDependencySubmission.CLI do
+defmodule MixDependencySubmission.Application do
   @moduledoc false
+
+  use Application
+
+  alias Burrito.Util.Args
 
   require Logger
 
@@ -7,12 +11,14 @@ defmodule MixDependencySubmission.CLI do
   @description Mix.Project.config()[:description]
   @version Mix.Project.config()[:version]
 
-  @spec main(argv :: [String.t()]) :: :ok
-  def main(argv) do
-    prepare_run()
+  @impl Application
+  @dialyzer {:no_return, [start: 2]}
+  def start(_start_type, _start_args) do
+    Mix.Hex.start()
+
+    argv = Args.argv()
 
     %Optimus.ParseResult{
-      args: %{project_name: project_name},
       options: %{
         project_path: project_path,
         paths_relative_to: paths_relative_to,
@@ -29,7 +35,7 @@ defmodule MixDependencySubmission.CLI do
       |> Optimus.new!()
       |> Optimus.parse!(argv)
 
-    Mix.Project.in_project(project_name, project_path, fn _module ->
+    Mix.Project.in_project(:project_name, project_path, fn _module ->
       file_path = Path.relative_to(Path.join(project_path, "mix.exs"), paths_relative_to)
 
       submission =
@@ -65,15 +71,7 @@ defmodule MixDependencySubmission.CLI do
       end
     end)
 
-    :ok
-  end
-
-  @spec prepare_run :: :ok
-  defp prepare_run do
-    :ok = Mix.Local.append_archives()
-    {:ok, _apps} = Application.ensure_all_started(@app)
-
-    :ok
+    System.halt(0)
   end
 
   @spec cli_definition :: Optimus.spec()
@@ -84,14 +82,6 @@ defmodule MixDependencySubmission.CLI do
       description: @description,
       version: @version,
       allow_unknown_args: false,
-      args: [
-        project_name: [
-          value_name: "PROJECT_NAME",
-          help: "Name of the project. (`app` in `mix.exs`)",
-          required: true,
-          parser: &parse_project_name/1
-        ]
-      ],
       options: [
         project_path: [
           value_name: "PROJECT_PATH",
@@ -154,12 +144,6 @@ defmodule MixDependencySubmission.CLI do
       ]
     ]
   end
-
-  @spec parse_project_name(name :: String.t()) :: Optimus.parser_result()
-  defp parse_project_name(name)
-  defp parse_project_name(""), do: {:error, "invalid name"}
-  # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
-  defp parse_project_name(name), do: {:ok, String.to_atom(name)}
 
   @spec parse_project_path(path :: String.t()) :: Optimus.parser_result()
   defp parse_project_path(path) do

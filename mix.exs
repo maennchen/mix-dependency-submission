@@ -29,16 +29,32 @@ defmodule MixDependencySubmission.MixProject do
         "coveralls.xml": :test
       ],
       package: package(),
-      escript: [main_module: MixDependencySubmission.CLI],
       source_url: @source_url,
-      # Loaded via archive in MixDependencySubmission.CLI.prepare_run/0
-      xref: [exclude: [Hex.Repo]]
+      releases: releases()
     ]
   end
 
   def application do
+    opts = [extra_applications: [:logger, :mix]]
+
+    case Mix.env() do
+      :test -> opts
+      _other -> [{:mod, {MixDependencySubmission.Application, []}} | opts]
+    end
+  end
+
+  def releases do
     [
-      extra_applications: [:logger, :mix]
+      mix_dependency_submission: [
+        applications: [hex: :load],
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            linux_amd64: [os: :linux, cpu: :x86_64],
+            linux_arm64: [os: :linux, cpu: :aarch64]
+          ]
+        ]
+      ]
     ]
   end
 
@@ -65,11 +81,12 @@ defmodule MixDependencySubmission.MixProject do
 
   defp deps do
     [
-      {:castore, "~> 1.0"},
+      {:burrito, "~> 1.0"},
       {:credo, "~> 1.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+      {:hex, github: "hexpm/hex", runtime: false},
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},
       {:purl, "~> 0.2.0"},
