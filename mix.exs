@@ -13,19 +13,13 @@ defmodule MixDependencySubmission.MixProject do
     [
       app: :mix_dependency_submission,
       version: @version,
-      elixir: "1.14.4",
+      elixir: "1.17.3",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
       test_coverage: [tool: ExCoveralls],
       description: @description,
-      dialyzer:
-        [list_unused_filters: true] ++
-          if (System.get_env("DIALYZER_PLT_PRIV") || "false") in ["1", "true"] do
-            [plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
-          else
-            []
-          end,
+      dialyzer: [list_unused_filters: true],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.detail": :test,
@@ -71,19 +65,16 @@ defmodule MixDependencySubmission.MixProject do
 
   defp deps do
     [
+      {:castore, "~> 1.0"},
+      {:credo, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
-      # TODO: Remove when the following PR is merged & released:
-      # https://github.com/deadtrickster/ssl_verify_fun.erl/pull/27
-      {:ssl_verify_fun, "~> 1.1",
-       manager: :rebar3, only: [:test], runtime: false, override: true},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},
-      {:req, "~> 0.3.6"},
-      {:castore, "~> 1.0"},
-      {:purl, "~> 0.1.1"}
+      {:purl, "~> 0.1.1"},
+      {:req, "~> 0.5.6"},
+      {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 end

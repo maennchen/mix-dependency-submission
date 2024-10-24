@@ -2,6 +2,7 @@ defmodule MixDependencySubmissionTest do
   use ExUnit.Case, async: false
 
   alias MixDependencySubmission.Submission
+  alias MixDependencySubmission.Submission.Manifest.Dependency
 
   doctest MixDependencySubmission
 
@@ -47,13 +48,13 @@ defmodule MixDependencySubmissionTest do
                      metadata: %{},
                      resolved: %{
                        # TODO: Add tests for child dependencies
-                       credo: %Submission.Manifest.Dependency{
+                       credo: %Dependency{
                          package_url: %Purl{type: "hex", name: "credo", version: "1.7.0"},
                          metadata: %{name: :credo},
                          relationship: :direct,
                          scope: :runtime
                        },
-                       expo: %Submission.Manifest.Dependency{
+                       expo: %Dependency{
                          package_url: %Purl{
                            type: "github",
                            name: "expo",
@@ -64,7 +65,7 @@ defmodule MixDependencySubmissionTest do
                          relationship: :direct,
                          scope: :runtime
                        },
-                       mime: %Submission.Manifest.Dependency{
+                       mime: %Dependency{
                          # Version is empty because dependency is not locked
                          package_url: %Purl{type: "hex", name: "mime", version: nil},
                          metadata: %{name: :mime},
@@ -86,7 +87,7 @@ defmodule MixDependencySubmissionTest do
     end
   end
 
-  @spec run_in_fixture(fixture_app :: atom(), callback :: (() -> result)) :: result
+  @spec run_in_fixture(fixture_app :: atom(), callback :: (-> result)) :: result
         when result: term()
   defp run_in_fixture(fixture_app, callback) do
     Mix.ProjectStack.on_clean_slate(fn ->

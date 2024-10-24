@@ -184,30 +184,10 @@ defmodule MixDependencySubmission.Dependency do
   end
 
   @spec child_apps :: [atom()]
-  if function_exported?(Mix.Project, :deps_tree, 1) do
-    defp child_apps do
-      %{^dep => child_apps} = Mix.Project.deps_tree(depth: 1)
-    end
-  else
-    # TODO: Remove when only supporting Elixir >= 1.15
-    defp child_apps do
-      Mix.Dep.cached()
-      |> Enum.filter(&match?(%Mix.Dep{top_level: true}, &1))
-      |> Enum.map(& &1.app)
-    end
-  end
+  defp child_apps, do: [depth: 1] |> Mix.Project.deps_tree() |> Map.keys()
 
   @spec deps_scms(dep :: atom()) :: %{optional(atom) => module()}
-  if Version.match?(System.version(), "~> 1.15") do
-    defp deps_scms(dep), do: Mix.Project.deps_scms(parents: [dep], depth: 2)
-  else
-    # TODO: Remove when only supporting Elixir >= 1.15
-    defp deps_scms(dep) do
-      %Mix.Dep{deps: deps} = Enum.find(Mix.Dep.cached(), &match?(%Mix.Dep{app: ^dep}, &1))
-
-      Map.new(deps, &{&1.app, &1.scm})
-    end
-  end
+  defp deps_scms(dep), do: Mix.Project.deps_scms(parents: [dep], depth: 2)
 end
 
 defmodule MixDependencySubmission.Dependency.Mix.SCM.Git do

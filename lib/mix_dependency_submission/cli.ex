@@ -57,9 +57,7 @@ defmodule MixDependencySubmission.CLI do
       )
       |> case do
         %Req.Response{status: 201, body: body} ->
-          Logger.info(
-            "Successfully submitted submission. Response: #{inspect(body, pretty: true)}"
-          )
+          Logger.info("Successfully submitted submission. Response: #{inspect(body, pretty: true)}")
 
         %Req.Response{} = response ->
           Logger.error("Unexpected response: #{inspect(response, pretty: true)}")

@@ -7,9 +7,6 @@ on:
 
 name: "Documentation"
 
-env:
-  BUILD_EMBEDDED: true
-
 jobs:
   generate:
     name: "Generate"
