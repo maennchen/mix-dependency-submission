@@ -7,7 +7,6 @@ defmodule MixDependencySubmission.Submission.Detector do
           url: URI.t()
         }
 
-  @derive Jason.Encoder
   @enforce_keys [:name, :version, :url]
   defstruct [:name, :version, :url]
 
