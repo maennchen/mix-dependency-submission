@@ -135,7 +135,7 @@ defmodule MixDependencySubmission.Dependency do
     lockfile =
       Path.absname(Mix.Project.config()[:lockfile], Path.dirname(Mix.Project.project_file()))
 
-    opts = [file: lockfile, warn_on_unnecessary_quotes: false]
+    opts = [file: lockfile, emit_warnings: false]
 
     with {:ok, contents} <- File.read(lockfile),
          {:ok, quoted} <- Code.string_to_quoted(contents, opts),
