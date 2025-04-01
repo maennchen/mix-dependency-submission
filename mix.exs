@@ -72,7 +72,7 @@ defmodule MixDependencySubmission.MixProject do
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},
-      {:purl, "~> 0.1.1"},
+      {:purl, "~> 0.2.0"},
       {:req, "~> 0.5.6"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
