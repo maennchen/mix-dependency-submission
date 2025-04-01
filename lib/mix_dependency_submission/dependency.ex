@@ -209,7 +209,7 @@ defmodule MixDependencySubmission.Dependency.Mix.SCM.Git do
 
     case Purl.from_resource_uri(opts[:git]) do
       {:ok, purl} ->
-        {:ok, %Purl{purl | version: version}}
+        {:ok, %{purl | version: version}}
 
       :error ->
         {:ok,
