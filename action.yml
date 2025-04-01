@@ -27,7 +27,7 @@ runs:
         install-hex: true
         version-type: strict
     - name: "Download Dependency Submission Tool"
-      uses: robinraju/release-downloader@a96f54c1b5f5e09e47d9504526e96febd949d4c2 # v1.11
+      uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
       with:
         repository: "maennchen/mix-dependency-submission"
         tag: "v1.0.0-beta.2"
