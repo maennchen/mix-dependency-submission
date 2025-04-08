@@ -9,9 +9,6 @@ inputs:
     description: "GitHub Personal Access Token (PAT). Defaults to PAT provided by Action runner"
     required: false
     default: ${{ github.token }}
-  project-name:
-    required: true
-    description: "Application name of the project"
   project-path:
     required: true
     description: "Repo path to the rebar.lock file used to detect dependencies. Defaults to rebar.lock in the root of the repository."
@@ -19,40 +16,28 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Install Beam"
-      uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
-      with:
-        elixir-version: 1.17.3
-        otp-version: 27.1.2
-        install-hex: true
-        version-type: strict
     - name: "Download Dependency Submission Tool"
       uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
       with:
         repository: "maennchen/mix-dependency-submission"
         tag: "v1.0.0-beta.2"
-        fileName: "mix_dependency_submission"
+        fileName: "mix_dependency_submission_linux_amd64"
         out-file-path: "${{ runner.temp }}"
     - name: "Verify Dependency Submission Tool Provenance"
       run: |
         gh attestation \
           verify \
           --repo maennchen/mix-dependency-submission \
-          "${{ runner.temp }}/mix_dependency_submission"
+          "${{ runner.temp }}/mix_dependency_submission_linux_amd64"
       shell: "bash"
       working-directory: "${{ runner.temp }}"
-    - name: "Install Dependency Submission Tool"
-      run: |
-        mix \
-          escript.install \
-          "${{ runner.temp }}/mix_dependency_submission" \
-          --force
+    - name: "Make Tool Executable"
+      run: "chmod +x mix_dependency_submission_linux_amd64"
       shell: "bash"
       working-directory: "${{ runner.temp }}"
     - name: "Submit Dependencies"
       run: |
-        mix_dependency_submission \
+        ${{ runner.temp }}/mix_dependency_submission_linux_amd64 \
           --project-path="${{ inputs.project-path }}" \
-          --github-token="${{ inputs.token }}" \
-          ${{ inputs.project-name }}
+          --github-token="${{ inputs.token }}"
       shell: "bash"
