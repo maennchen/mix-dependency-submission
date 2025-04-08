@@ -31,6 +31,8 @@ runs:
           "${{ runner.temp }}/mix_dependency_submission_linux_amd64"
       shell: "bash"
       working-directory: "${{ runner.temp }}"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
     - name: "Make Tool Executable"
       run: "chmod +x mix_dependency_submission_linux_amd64"
       shell: "bash"
@@ -41,3 +43,5 @@ runs:
           --project-path="${{ inputs.project-path }}" \
           --github-token="${{ inputs.token }}"
       shell: "bash"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
