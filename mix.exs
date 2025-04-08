@@ -28,7 +28,6 @@ defmodule MixDependencySubmission.MixProject do
         "coveralls.post": :test,
         "coveralls.xml": :test
       ],
-      package: package(),
       source_url: @source_url,
       releases: releases()
     ]
@@ -56,18 +55,6 @@ defmodule MixDependencySubmission.MixProject do
         ]
       ]
     ]
-  end
-
-  defp package do
-    %{
-      licenses: ["Apache-2.0"],
-      maintainers: ["Jonatan Männchen"],
-      links: %{
-        "GitHub" => @source_url,
-        "Changelog" => @source_url <> "/releases",
-        "Issues" => @source_url <> "/issues"
-      }
-    }
   end
 
   defp docs do
