@@ -48,10 +48,13 @@ jobs:
         id: attest-provenance
         if: "${{ inputs.attest }}"
         with:
-          subject-path: 'mix_dependency_submission'
+          subject-path: 'burrito_out/mix_dependency_submission_*'
       - name: "Copy provenance"
         if: "${{ inputs.attest }}"
-        run: cp "$ATTESTATION" mix_dependency_submission.sigstore
+        run: |
+          for FILE in burrito_out/mix_dependency_submission_*; do
+            cp "$ATTESTATION" $FILE.sigstore
+          done
         env:
           ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
       
