@@ -1,8 +1,5 @@
 # GitHub Dependency Submission Action for Mix
 
-:warning: This repository is not ready for use. Please check back later.
-
-[![Documentation badge](https://img.shields.io/badge/Documentation-ff69b4)][docs]
 [![.github/workflows/branch_main.yml](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml)
 [![Coverage Status](https://coveralls.io/repos/github/maennchen/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/maennchen/mix-dependency-submission?branch=main)
 
