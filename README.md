@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: maennchen/mix-dependency-submission@v1.0.0-beta.4
+      - uses: maennchen/mix-dependency-submission@v1.0.0-beta.5
 ```
 
 ## Action Configuration

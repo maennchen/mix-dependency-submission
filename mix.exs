@@ -2,7 +2,7 @@
 defmodule MixDependencySubmission.MixProject do
   use Mix.Project
 
-  @version "1.0.0-beta.4"
+  @version "1.0.0-beta.5"
   @source_url "https://github.com/maennchen/mix-dependency-submission"
   @description """
   :warning: This repository is not ready for use. Please check back later.
