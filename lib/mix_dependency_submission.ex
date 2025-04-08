@@ -34,7 +34,7 @@ defmodule MixDependencySubmission do
       version: 0,
       job: %Submission.Job{
         id: github_job_id,
-        correlator: github_workflow <> github_job_id
+        correlator: "#{github_workflow} #{github_job_id}"
       },
       sha: sha,
       ref: ref,

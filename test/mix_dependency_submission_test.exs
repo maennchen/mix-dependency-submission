@@ -19,7 +19,7 @@ defmodule MixDependencySubmissionTest do
                  version: 0,
                  job: %Submission.Job{
                    id: "github_job_id",
-                   correlator: "github_workflowgithub_job_id",
+                   correlator: "github_workflow github_job_id",
                    html_url: nil
                  },
                  sha: "sha",
