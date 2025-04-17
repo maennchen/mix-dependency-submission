@@ -49,7 +49,7 @@ runs:
         ${{ runner.temp }}/mix_dependency_submission_linux_amd64 \
           --project-path="$PROJECT_PATH" \
           --github-token="$GITHUB_TOKEN" \
-          ${{ inputs.install-deps == "true" && "--install-deps" || '' }} \
+          ${{ inputs.install-deps == 'true' && '--install-deps' || '' }} \
           --ignore "$IGNORE"
       shell: "bash"
       env:
