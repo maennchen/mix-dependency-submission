@@ -3,6 +3,7 @@
 [![.github/workflows/branch_main.yml](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml)
 [![Coverage Status](https://coveralls.io/repos/github/erlef/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/erlef/mix-dependency-submission?branch=main)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/erlef/mix-dependency-submission/badge)](https://scorecard.dev/viewer/?uri=github.com/erlef/mix-dependency-submission)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10438/badge)](https://www.bestpractices.dev/projects/10438)
 
 This GitHub Action extracts dependencies from an Elixir project using
 [`mix`](https://hexdocs.pm/mix) and submits them to
