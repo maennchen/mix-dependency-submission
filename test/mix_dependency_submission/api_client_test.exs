@@ -13,7 +13,7 @@ defmodule MixDependencySubmission.ApiClientTest do
         assert ["2022-11-28"] = Plug.Conn.get_req_header(conn, "x-github-api-version")
 
         assert %Plug.Conn{
-                 path_info: ["repos", "maennchen", "mix-dependency-submission", "dependency-graph", "snapshots"],
+                 path_info: ["repos", "erlef", "mix-dependency-submission", "dependency-graph", "snapshots"],
                  host: "api.github.com",
                  method: "POST"
                } = conn
@@ -34,7 +34,7 @@ defmodule MixDependencySubmission.ApiClientTest do
                |> Submission.new()
                |> ApiClient.submit(
                  "https://api.github.com",
-                 "maennchen/mix-dependency-submission",
+                 "erlef/mix-dependency-submission",
                  "token"
                )
     end
@@ -57,7 +57,7 @@ defmodule MixDependencySubmission.ApiClientTest do
                |> Submission.new()
                |> ApiClient.submit(
                  "https://api.github.com",
-                 "maennchen/mix-dependency-submission",
+                 "erlef/mix-dependency-submission",
                  "token"
                )
     end

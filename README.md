@@ -1,7 +1,7 @@
 # GitHub Dependency Submission Action for Mix
 
-[![.github/workflows/branch_main.yml](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/maennchen/mix-dependency-submission/actions/workflows/branch_main.yml)
-[![Coverage Status](https://coveralls.io/repos/github/maennchen/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/maennchen/mix-dependency-submission?branch=main)
+[![.github/workflows/branch_main.yml](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml)
+[![Coverage Status](https://coveralls.io/repos/github/erlef/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/erlef/mix-dependency-submission?branch=main)
 
 > Action that calculates dependencies for Mix and submits the list to the
 > GitHub Dependency Submission API.
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: maennchen/mix-dependency-submission@v1.0.0-beta.7
+      - uses: erlef/mix-dependency-submission@v1.0.0-beta.7
 ```
 
 ## Action Configuration

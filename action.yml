@@ -26,7 +26,7 @@ runs:
     - name: "Download Dependency Submission Tool"
       uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
       with:
-        repository: "maennchen/mix-dependency-submission"
+        repository: "erlef/mix-dependency-submission"
         tag: "v1.0.0-beta.7"
         fileName: "mix_dependency_submission_linux_amd64"
         out-file-path: "${{ runner.temp }}"
@@ -34,7 +34,7 @@ runs:
       run: |
         gh attestation \
           verify \
-          --repo maennchen/mix-dependency-submission \
+          --repo erlef/mix-dependency-submission \
           "${{ runner.temp }}/mix_dependency_submission_linux_amd64"
       shell: "bash"
       working-directory: "${{ runner.temp }}"
