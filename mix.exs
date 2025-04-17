@@ -17,7 +17,11 @@ defmodule MixDependencySubmission.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
-      test_coverage: [tool: ExCoveralls],
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_coverage: [
+        tool: ExCoveralls,
+        ignore_modules: [MixDependencySubmission.CLI, MixDependencySubmission.CLI.Submit]
+      ],
       description: @description,
       dialyzer: [list_unused_filters: true],
       preferred_cli_env: [
@@ -34,12 +38,10 @@ defmodule MixDependencySubmission.MixProject do
   end
 
   def application do
-    opts = [extra_applications: [:logger, :mix]]
-
-    case Mix.env() do
-      :test -> opts
-      _other -> [{:mod, {MixDependencySubmission.Application, []}} | opts]
-    end
+    [
+      mod: {MixDependencySubmission.Application, []},
+      extra_applications: [:logger, :mix]
+    ]
   end
 
   def releases do
@@ -76,9 +78,13 @@ defmodule MixDependencySubmission.MixProject do
       {:hex, github: "hexpm/hex", runtime: false},
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},
+      {:plug, "~> 1.0", only: [:test]},
       {:purl, "~> 0.2.0"},
       {:req, "~> 0.5.6"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_env), do: ["lib"]
 end

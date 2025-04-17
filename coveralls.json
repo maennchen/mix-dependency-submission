@@ -1,3 +1,7 @@
 {
-  "skip_files": ["lib/mix_dependency_submission/cli.ex"]
+  "skip_files": [
+    "lib/mix_dependency_submission/application.ex",
+    "lib/mix_dependency_submission/cli.ex",
+    "lib/mix_dependency_submission/cli/submit.ex"
+  ]
 }

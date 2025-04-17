@@ -36,6 +36,11 @@ jobs:
 
 * `token` - GitHub Token to use for the submission. Defaults to `${{ github.token }}`.
 * `project-path` - The path to the the project. Defaults to `${{ github.workspace }}`.
+* `install-deps` - Whether to install the project dependencies. Defaults to `false`.
+  If dependencies are not installed, the tree structure of transitive dependencies
+  and other metadata can't be properly resolved. Enable this setting to get a more
+  accurate submission.
+* `ignore` - Directories to ignore when looking for mix projects. No Default.
 
 ### Outputs
 

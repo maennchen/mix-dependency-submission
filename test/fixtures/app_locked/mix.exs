@@ -1,9 +1,10 @@
-defmodule App.MixProject do
+defmodule AppNameToReplace.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :app,
+      app: :app_name_to_replace,
+      version: "0.0.0-dev",
       deps: [
         {:credo, "~> 1.7"},
         {:mime, "~> 2.0"},
