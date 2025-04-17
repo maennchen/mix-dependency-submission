@@ -46,11 +46,13 @@ runs:
       working-directory: "${{ runner.temp }}"
     - name: "Submit Dependencies"
       run: |
+        EXTRA_OPTS
+
         ${{ runner.temp }}/mix_dependency_submission_linux_amd64 \
           --project-path="$PROJECT_PATH" \
           --github-token="$GITHUB_TOKEN" \
           ${{ inputs.install-deps == 'true' && '--install-deps' || '' }} \
-          --ignore "$IGNORE"
+          ${{ inputs.ignore && '--ignore="$IGNORE"' || '' }}
       shell: "bash"
       env:
         GITHUB_TOKEN: "${{ inputs.token }}"
