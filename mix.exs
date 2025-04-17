@@ -4,10 +4,7 @@ defmodule MixDependencySubmission.MixProject do
 
   @version "1.0.0-beta.5"
   @source_url "https://github.com/maennchen/mix-dependency-submission"
-  @description """
-  :warning: This repository is not ready for use. Please check back later.
-  Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API
-  """
+  @description "Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API"
 
   def project do
     [
