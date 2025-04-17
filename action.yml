@@ -11,8 +11,15 @@ inputs:
     default: ${{ github.token }}
   project-path:
     required: true
-    description: "Repo path to the rebar.lock file used to detect dependencies. Defaults to rebar.lock in the root of the repository."
+    description: "Repo path to the mix.exs file used to detect dependencies. Defaults to mix.exs in the root of the repository."
     default: "${{ github.workspace }}"
+  install-deps:
+    required: false
+    description: "Whether to install dependencies to improve Submission Quality."
+    default: "false"
+  ignore:
+    required: false
+    description: "Paths to ignore"
 runs:
   using: "composite"
   steps:
@@ -40,8 +47,12 @@ runs:
     - name: "Submit Dependencies"
       run: |
         ${{ runner.temp }}/mix_dependency_submission_linux_amd64 \
-          --project-path="${{ inputs.project-path }}" \
-          --github-token="${{ inputs.token }}"
+          --project-path="$PROJECT_PATH" \
+          --github-token="$GITHUB_TOKEN" \
+          ${{ inputs.install-deps == "true" && "--install-deps" || '' }} \
+          --ignore "$IGNORE"
       shell: "bash"
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: "${{ inputs.token }}"
+        PROJECT_PATH: "${{ inputs.project-path }}"
+        IGNORE: "${{ inputs.ignore }}"

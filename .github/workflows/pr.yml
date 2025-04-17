@@ -43,17 +43,6 @@ jobs:
     with:
       attest: false
 
-  dependabot:
-    name: "Dependabot"
-
-    permissions:
-      pull-requests: write
-      contents: write
-
-    if: ${{ github.actor == 'dependabot[bot]'}}
-
-    uses: ./.github/workflows/part_dependabot.yml
-
   report_deps:
     name: "Report Dependencies"
 
