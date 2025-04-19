@@ -1,5 +1,9 @@
 defmodule MixDependencySubmission.Submission.Detector do
-  @moduledoc false
+  @moduledoc """
+  Represents the detector entry in the submission manifest.
+
+  See https://docs.github.com/en/rest/dependency-graph/dependency-submission?apiVersion=2022-11-28#create-a-snapshot-of-dependencies-for-a-repository
+  """
 
   @type t :: %__MODULE__{
           name: String.t(),

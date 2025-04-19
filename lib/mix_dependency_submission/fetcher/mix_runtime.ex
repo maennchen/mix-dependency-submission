@@ -1,12 +1,38 @@
 defmodule MixDependencySubmission.Fetcher.MixRuntime do
   @moduledoc """
-  Fetch Dependencies from Mix Runtime.
+  Fetches dependencies from the compiled Mix project at runtime.
+
+  This fetcher uses `Mix.Project.deps_tree/1` and related project metadata to
+  collect runtime dependency information including versions, SCMs, and
+  relationships.
   """
 
   @behaviour MixDependencySubmission.Fetcher
 
   alias MixDependencySubmission.Fetcher
 
+  @doc """
+  Fetches all runtime dependencies from the current Mix project.
+
+  Includes both direct and indirect dependencies as resolved from the dependency
+  tree at runtime.
+
+  ## Examples
+
+      iex> %{
+      ...>   burrito: %{
+      ...>     scm: Hex.SCM,
+      ...>     dependencies: [:jason, :req, :typed_struct],
+      ...>     mix_config: _config,
+      ...>     relationship: :direct,
+      ...>     scope: :runtime,
+      ...>     version: _version
+      ...>   }
+      ...> } =
+      ...>   MixDependencySubmission.Fetcher.MixRuntime.fetch()
+
+  Note: This test assumes an Elixir project that is currently loaded.
+  """
   @impl Fetcher
   def fetch do
     root_deps = [depth: 1] |> Mix.Project.deps_tree() |> Map.keys()
@@ -28,7 +54,9 @@ defmodule MixDependencySubmission.Fetcher.MixRuntime do
 
     config =
       if Elixir.File.exists?(dep_path) do
-        Mix.Project.in_project(app, Map.fetch!(deps_paths, app), fn _module -> Mix.Project.config() end)
+        Mix.Project.in_project(app, Map.fetch!(deps_paths, app), fn _module ->
+          Mix.Project.config()
+        end)
       else
         []
       end

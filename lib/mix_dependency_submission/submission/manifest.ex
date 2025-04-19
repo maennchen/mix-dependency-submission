@@ -1,5 +1,9 @@
 defmodule MixDependencySubmission.Submission.Manifest do
-  @moduledoc false
+  @moduledoc """
+  Represents a manifest entry in the submission payload.
+
+  See https://docs.github.com/en/rest/dependency-graph/dependency-submission?apiVersion=2022-11-28#create-a-snapshot-of-dependencies-for-a-repository
+  """
 
   alias MixDependencySubmission.Submission.Manifest.Dependency
   alias MixDependencySubmission.Submission.Manifest.File

@@ -4,6 +4,8 @@ defmodule MixDependencySubmission.ApiClientTest do
   alias MixDependencySubmission.ApiClient
   alias MixDependencySubmission.Submission
 
+  doctest ApiClient, except: [submit: 4]
+
   describe inspect(&ApiClient.submit/4) do
     test "sends correct request" do
       Req.Test.stub(ApiClient, fn conn ->

@@ -1,7 +1,8 @@
 defmodule MixDependencySubmission.Util do
   @moduledoc false
 
-  @spec in_project(path :: Path.t(), fun :: (module() | nil -> result)) :: result when result: term()
+  @spec in_project(path :: Path.t(), fun :: (module() | nil -> result)) :: result
+        when result: term()
   def in_project(path, fun) do
     setup_context(fn ->
       path

@@ -3,6 +3,8 @@ defmodule MixDependencySubmission.Submission.Manifest.DependencyTest do
 
   alias MixDependencySubmission.Submission.Manifest.Dependency
 
+  doctest Dependency
+
   describe "Jason.Encoder" do
     test "encodes filled struct" do
       dependency = %Dependency{

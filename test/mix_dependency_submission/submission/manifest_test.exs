@@ -4,6 +4,8 @@ defmodule MixDependencySubmission.Submission.ManifestTest do
   alias MixDependencySubmission.Submission.Manifest
   alias MixDependencySubmission.Submission.Manifest.File
 
+  doctest Manifest
+
   describe "Jason.Encoder" do
     test "encodes filled struct" do
       manifest = %Manifest{

@@ -1,9 +1,29 @@
 defmodule MixDependencySubmission.CLI do
-  @moduledoc false
+  @moduledoc """
+  Handles parsing of CLI arguments using `Optimus`.
+
+  Used to configure and validate inputs for submitting a dependency snapshot.
+  """
+
   @app Mix.Project.config()[:app]
   @description Mix.Project.config()[:description]
   @version Mix.Project.config()[:version]
 
+  @doc """
+  Parses CLI arguments and returns the parsed result.
+
+  Raises on invalid input.
+
+  ## Examples
+
+      iex> argv =
+      ...>   ~w[--github-repository org/repo --github-job-id 123 --github-workflow build --sha sha --ref refs/heads/main --github-token ghp_xxx]
+      ...> 
+      ...> result = MixDependencySubmission.CLI.parse!(argv)
+      ...> result.options.github_repository
+      "org/repo"
+
+  """
   @spec parse!([String.t()]) :: Optimus.ParseResult.t()
   def parse!(argv) do
     cli_definition()

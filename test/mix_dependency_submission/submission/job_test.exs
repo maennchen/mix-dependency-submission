@@ -3,6 +3,8 @@ defmodule MixDependencySubmission.Submission.JobTest do
 
   alias MixDependencySubmission.Submission.Job
 
+  doctest Job
+
   describe "Jason.Encoder" do
     test "encodes filled struct" do
       job = %Job{

@@ -3,7 +3,12 @@ if Mix.env() == :dev do
 
   defmodule Mix.Tasks.MixDependencySubmission do
     @shortdoc "Run mix_depdendency_submission"
-    @moduledoc @shortdoc
+    @moduledoc """
+    #{@shortdoc}
+
+    Only intented for development purposes. Use the burrito binary for
+    production.
+    """
 
     use Mix.Task
 
@@ -11,6 +16,7 @@ if Mix.env() == :dev do
 
     @requirements ["app.start"]
 
+    @doc false
     @impl Mix.Task
     def run(args) do
       Submit.run(args)

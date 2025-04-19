@@ -1,5 +1,12 @@
 defmodule MixDependencySubmission.Submission.Manifest.Dependency do
-  @moduledoc false
+  @moduledoc """
+  Represents a dependency entry in the submission manifest.
+
+  Used to describe individual dependencies with metadata, scope, and
+  relationship information, including any nested dependencies via `purl`s.
+
+  See https://docs.github.com/en/rest/dependency-graph/dependency-submission?apiVersion=2022-11-28#create-a-snapshot-of-dependencies-for-a-repository
+  """
 
   @type relationship() :: :direct | :indirect
   @type scope() :: :runtime | :development
