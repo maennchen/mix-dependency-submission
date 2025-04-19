@@ -135,7 +135,8 @@ $ mix docs
 ## How-To Release
 
 * Update `@version` in `mix.exs`
-* Update `version` in `action.yml` / `steps` / `mix escript.install`
+* Update `version` in `action.yml` / `steps` / `Download Dependency Submission Tool`
+* Update `version` in `action.yml` / `steps` / `Verify Dependency Submission Tool Provenance`
 * `git commit -m "Release v[VERSION]"`
 * `git tag -s v[VERSION] -m v[VERSION]`
 * `mix hex.publish`

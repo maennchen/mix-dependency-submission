@@ -35,6 +35,7 @@ runs:
         gh attestation \
           verify \
           --repo erlef/mix-dependency-submission \
+          --source-ref refs/tags/v1.0.0-beta.8 \
           "${{ runner.temp }}/mix_dependency_submission_linux_amd64"
       shell: "bash"
       working-directory: "${{ runner.temp }}"
