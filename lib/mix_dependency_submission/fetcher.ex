@@ -1,6 +1,14 @@
 defmodule MixDependencySubmission.Fetcher do
   @moduledoc """
-  Behaviour for Manifest Fetchers
+  Defines the behaviour for manifest fetchers and provides an entry point to collect
+  dependency data from multiple sources.
+
+  The built-in fetchers include:
+
+    * `MixDependencySubmission.Fetcher.MixFile` — parses `mix.exs`
+    * `MixDependencySubmission.Fetcher.MixLock` — parses `mix.lock`
+    * `MixDependencySubmission.Fetcher.MixRuntime` — inspects runtime dependency
+      graph
   """
 
   alias MixDependencySubmission.SCM
@@ -20,10 +28,53 @@ defmodule MixDependencySubmission.Fetcher do
           optional(:mix_config) => Keyword.t()
         }
 
+  @doc """
+  Fetches dependencies from a specific source.
+
+  Implementers must return a map of app names to raw dependency data, or `nil`
+  if no data is available.
+
+  This callback is used by the main `MixDependencySubmission.Fetcher.fetch/0`
+  function to gather and merge data from multiple sources like `mix.exs`,
+  `mix.lock`, or the compiled dependency graph.
+
+  ## Example return value
+
+      %{
+        my_dep: %{
+          scm: Mix.SCM.Hex,
+          version: "0.1.0",
+          scope: :runtime,
+          relationship: :direct
+        }
+      }
+
+  Returning `nil` signals that no data could be fetched by the implementation.
+  """
   @callback fetch() :: %{optional(app_name()) => dependency()} | nil
 
   @manifest_fetchers [__MODULE__.MixFile, __MODULE__.MixLock, __MODULE__.MixRuntime]
 
+  @doc """
+  Fetches and merges dependencies from all registered fetchers.
+
+  Returns a map of stringified app names to structured `Dependency` records,
+  ready to be submitted as a manifest.
+
+  ## Examples
+
+      iex> %{
+      ...>   "burrito" => %MixDependencySubmission.Submission.Manifest.Dependency{
+      ...>     package_url: %Purl{type: "hex", name: "burrito"},
+      ...>     metadata: %{},
+      ...>     relationship: :direct,
+      ...>     scope: :runtime,
+      ...>     dependencies: _dependencies
+      ...>   }
+      ...> } = MixDependencySubmission.Fetcher.fetch()
+
+  Note: This test assumes an Elixir project that is currently loaded.
+  """
   @spec fetch() :: %{String.t() => Dependency.t()} | nil
   def fetch do
     @manifest_fetchers
@@ -44,7 +95,9 @@ defmodule MixDependencySubmission.Fetcher do
   @spec merge(app_name(), left :: dependency(), right :: dependency()) :: dependency()
   defp merge(_app, left, right), do: Map.merge(left, right)
 
-  @spec transform_all(dependencies :: %{app_name() => dependency()}) :: %{String.t() => Dependency.t()}
+  @spec transform_all(dependencies :: %{app_name() => dependency()}) :: %{
+          String.t() => Dependency.t()
+        }
   defp transform_all(dependencies) do
     dependencies =
       Map.new(dependencies, fn {app, dependency} ->
@@ -66,7 +119,8 @@ defmodule MixDependencySubmission.Fetcher do
 
   @spec transform(app_name(), dependency()) :: Dependency.t()
   defp transform(app, dependency) do
-    sub_dependencies = Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))
+    sub_dependencies =
+      Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))
 
     metadata =
       %{
@@ -139,6 +193,7 @@ defmodule MixDependencySubmission.Fetcher do
 
   defp lock_dependencies(_dependency), do: []
 
-  @spec drop_empty(map :: %{key => value | nil}) :: %{key => value} when key: term(), value: term()
+  @spec drop_empty(map :: %{key => value | nil}) :: %{key => value}
+        when key: term(), value: term()
   defp drop_empty(map), do: map |> Enum.reject(fn {_key, value} -> value in [nil, ""] end) |> Map.new()
 end

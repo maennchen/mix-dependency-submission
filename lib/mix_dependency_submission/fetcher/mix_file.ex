@@ -1,12 +1,38 @@
 defmodule MixDependencySubmission.Fetcher.MixFile do
   @moduledoc """
-  Fetch Dependencies from mix.exs directly.
+  A `MixDependencySubmission.Fetcher` implementation that extracts dependencies
+  from the current project's `mix.exs` file.
+
+  This module is responsible for reading and normalizing direct dependencies
+  defined in the project configuration, returning them in a standard format
+  expected by the submission tool.
   """
 
   @behaviour MixDependencySubmission.Fetcher
 
   alias MixDependencySubmission.Fetcher
 
+  @doc """
+  Fetches and normalizes the direct dependencies defined in the `mix.exs` file.
+
+  This implementation reads the project configuration via
+  `Mix.Project.config()[:deps]` and normalizes each dependency entry.
+
+  ## Examples
+
+      iex> %{
+      ...>   burrito: %{
+      ...>     scm: Hex.SCM,
+      ...>     mix_dep: _dep,
+      ...>     relationship: :direct,
+      ...>     scope: :runtime
+      ...>   }
+      ...> } =
+      ...>   MixDependencySubmission.Fetcher.MixFile.fetch()
+
+  Note: This test assumes an Elixir project that is currently loaded with a
+  `mix.exs` file in place.
+  """
   @impl Fetcher
   def fetch do
     Mix.Project.config()[:deps] |> List.wrap() |> Map.new(&normalize_dep/1)

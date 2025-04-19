@@ -61,17 +61,20 @@ defmodule MixDependencySubmission.MixProject do
       source_url: @source_url,
       source_ref: "v" <> @version,
       main: "readme",
-      extras: ["README.md"]
+      extras: ["README.md"],
+      nest_modules_by_prefix: [MixDependencySubmission]
     ]
   end
 
   defp deps do
+    # styler:sort
     [
       {:burrito, "~> 1.0"},
       {:credo, "~> 1.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.5", only: [:test], runtime: false},
+      {:doctest_formatter, "~> 0.3.1", runtime: false},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.5", only: [:test], runtime: false},
       {:hex, github: "hexpm/hex", runtime: false},
       {:jason, "~> 1.4"},
       {:optimus, "~> 0.2"},

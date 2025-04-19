@@ -1,7 +1,44 @@
 defmodule MixDependencySubmission.ApiClient do
-  @moduledoc false
+  @moduledoc """
+  Handles submission of the dependency snapshot to the GitHub Dependency Submission API.
+  """
+
   alias MixDependencySubmission.Submission
 
+  @doc """
+  Submits a dependency snapshot to the GitHub API.
+
+  Returns `{:ok, response}` if the submission was accepted, or
+  `{:error, {:unexpected_response, response}}` for other HTTP status codes.
+
+  ## Examples
+
+      iex> submission = %MixDependencySubmission.Submission{
+      ...>   version: 0,
+      ...>   job: %MixDependencySubmission.Submission.Job{
+      ...>     id: "job123",
+      ...>     correlator: "workflow job123"
+      ...>   },
+      ...>   sha: String.duplicate("a", 40),
+      ...>   ref: "refs/heads/main",
+      ...>   detector: %MixDependencySubmission.Submission.Detector{
+      ...>     name: "example",
+      ...>     version: Version.parse!("1.0.0"),
+      ...>     url: URI.parse("https://example.com")
+      ...>   },
+      ...>   scanned: DateTime.utc_now(),
+      ...>   manifests: %{}
+      ...> }
+      ...> 
+      ...> {:ok, %Req.Response{} = response} =
+      ...>   MixDependencySubmission.ApiClient.submit(
+      ...>     submission,
+      ...>     "https://api.github.com",
+      ...>     "owner/repo",
+      ...>     "ghp_exampletoken"
+      ...>   )
+
+  """
   @spec submit(
           submission :: Submission.t(),
           github_api_url :: String.t(),

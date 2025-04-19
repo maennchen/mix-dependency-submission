@@ -1,10 +1,34 @@
 defmodule MixDependencySubmission.SCM.Hex.SCM do
-  @moduledoc false
+  @moduledoc """
+  SCM implementation for Hex packages.
+
+  Handles the conversion of Hex dependencies into `purl` format and extraction
+  of dependency information from `mix.exs` and `mix.lock`.
+  """
 
   @behaviour MixDependencySubmission.SCM
 
   alias MixDependencySubmission.SCM
 
+  @doc """
+  Creates a package URL (`purl`) from a declared Mix dependency (`mix.exs`).
+
+  Attempts to resolve the repository URL and include it as a `qualifier`.
+
+  ## Examples
+
+      iex> MixDependencySubmission.SCM.Hex.SCM.mix_dep_to_purl(
+      ...>   {:jason, "~> 1.0", [hex: :jason, repo: "hexpm"]},
+      ...>   "1.4.0"
+      ...> )
+      %Purl{
+        type: "hex",
+        namespace: [],
+        name: "jason",
+        version: "1.4.0",
+        qualifiers: %{}
+      }
+  """
   @impl SCM
   def mix_dep_to_purl({_app, requirement, opts}, version) do
     qualifiers =
@@ -22,9 +46,45 @@ defmodule MixDependencySubmission.SCM.Hex.SCM do
     })
   end
 
+  @doc """
+  Creates a package URL (`purl`) from a locked dependency (`mix.lock` entry).
+
+  Attempts to include the repository URL as a `qualifier`, if resolvable.
+
+  ## Examples
+
+      iex> lock = [
+      ...>   :hex,
+      ...>   :jason,
+      ...>   "1.4.0",
+      ...>   "checksum",
+      ...>   [:mix],
+      ...>   [],
+      ...>   "hexpm",
+      ...>   "checksum"
+      ...> ]
+      ...> 
+      ...> MixDependencySubmission.SCM.Hex.SCM.mix_lock_to_purl(:jason, lock)
+      %Purl{
+        type: "hex",
+        namespace: [],
+        name: "jason",
+        version: "1.4.0",
+        qualifiers: %{}
+      }
+  """
   @impl SCM
   def mix_lock_to_purl(_app, lock) do
-    [:hex, package_name, version, _inner_checksum, _managers, _deps, repo, _outer_checksum | _rest] = lock
+    [
+      :hex,
+      package_name,
+      version,
+      _inner_checksum,
+      _managers,
+      _deps,
+      repo,
+      _outer_checksum | _rest
+    ] = lock
 
     qualifiers =
       case repository_url(repo) do
@@ -41,9 +101,40 @@ defmodule MixDependencySubmission.SCM.Hex.SCM do
     })
   end
 
+  @doc """
+  Returns the list of app names that are dependencies of the given locked dependency.
+
+  ## Examples
+
+      iex> lock = [
+      ...>   :hex,
+      ...>   :my_app,
+      ...>   "0.1.0",
+      ...>   "checksum",
+      ...>   [:mix],
+      ...>   [
+      ...>     {:dep_a, "~> 0.1.0", [hex: :dep_a]},
+      ...>     {:dep_b, "~> 0.2.0", [hex: :dep_b]}
+      ...>   ],
+      ...>   "hexpm",
+      ...>   "checksum"
+      ...> ]
+      ...> 
+      ...> MixDependencySubmission.SCM.Hex.SCM.mix_lock_deps(lock)
+      [:dep_a, :dep_b]
+  """
   @impl SCM
   def mix_lock_deps(lock) do
-    [:hex, _package_name, _version, _inner_checksum, _managers, deps, _repo, _outer_checksum | _rest] = lock
+    [
+      :hex,
+      _package_name,
+      _version,
+      _inner_checksum,
+      _managers,
+      deps,
+      _repo,
+      _outer_checksum | _rest
+    ] = lock
 
     Enum.map(deps, fn {app, _requirement, _opts} -> app end)
   end

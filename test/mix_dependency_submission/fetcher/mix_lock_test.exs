@@ -4,7 +4,7 @@ defmodule MixDependencySubmission.Fetcher.MixLockTest do
   alias MixDependencySubmission.Fetcher.MixLock
   alias MixDependencySubmission.Util
 
-  doctest MixDependencySubmission
+  doctest MixLock
 
   describe inspect(&MixLock.fetch/1) do
     @tag :tmp_dir

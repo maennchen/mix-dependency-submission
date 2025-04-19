@@ -4,7 +4,7 @@ defmodule MixDependencySubmission.Fetcher.MixFileTest do
   alias MixDependencySubmission.Fetcher.MixFile
   alias MixDependencySubmission.Util
 
-  doctest MixDependencySubmission
+  doctest MixFile
 
   describe inspect(&MixFile.fetch/1) do
     @tag :tmp_dir

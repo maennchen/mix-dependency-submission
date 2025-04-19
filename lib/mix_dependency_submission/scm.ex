@@ -1,11 +1,20 @@
 defmodule MixDependencySubmission.SCM do
-  @moduledoc false
+  @moduledoc """
+  Defines the behavior and helper types for working with source control managers
+  (SCMs) in the Mix dependency submission context.
+
+  SCM implementations are responsible for generating package URLs (`purl`) and
+  extracting dependency metadata from `mix.lock` or `mix.exs`.
+
+  Implementations must live under `MixDependencySubmission.SCM.[NAME]` and match
+  the name of the corresponding module in `Mix.SCM.available/0`.
+  """
 
   @typedoc """
   Lock for the dependency as a list.
 
-  **Always only match the start of the list. The list can be extended to include
-  further contents in the future at the end of the list.**
+  **Always only match the start of the list. The list can be extended in the
+  future.**
 
   ## Examples
 
@@ -30,29 +39,45 @@ defmodule MixDependencySubmission.SCM do
   @type dep() :: {app_name(), requirement :: String.t() | nil, opts :: Keyword.t()}
 
   @doc """
-  Create a package url for the given `dep`.
+  Creates a package URL (`purl`) from a declared dependency.
 
+  Implementations are expected to convert the given Mix dependency (from `mix.exs`)
+  into a `Purl` struct.
   """
   @callback mix_dep_to_purl(dep(), version :: String.t() | nil) :: Purl.t()
 
   @doc """
-  Create a package url for the given `dep`.
+  Creates a package URL (`purl`) from a locked dependency.
 
-  ## Examples
-
-        iex> MixDependencySubmission.SCM.Hex.SCM.mix_dependency_to_package_url(:credo)
-        {:ok, Purl.parse!("pkg:hex/credo@1.7.0")}
-
-        iex> MixDependencySubmission.SCM.Hex.SCM.mix_dependency_to_package_url(:invalid)
-        :error
-
+  This is used when data is available from `mix.lock`.
   """
   @callback mix_lock_to_purl(app :: atom(), lock :: lock()) :: Purl.t()
 
+  @doc """
+  Returns a list of app names representing sub-dependencies found in the lock.
+
+  Only used if the SCM implementation supports this and provides custom logic.
+  """
   @callback mix_lock_deps(lock :: lock()) :: [app_name()]
 
   @optional_callbacks mix_lock_deps: 1, mix_lock_to_purl: 2
 
+  @doc """
+  Returns the module implementing SCM-specific behavior for a given SCM module.
+
+  Looks for a corresponding module under `MixDependencySubmission.SCM.*`.
+
+  Returns `nil` if no implementation exists or the module is not loaded.
+
+  ## Examples
+
+      iex> MixDependencySubmission.SCM.implementation(Mix.SCM.Path)
+      MixDependencySubmission.SCM.Mix.SCM.Path
+
+      iex> MixDependencySubmission.SCM.implementation(Unknown.SCM)
+      nil
+
+  """
   @spec implementation(module()) :: module() | nil
   def implementation(scm) when is_atom(scm) do
     if scm in Mix.SCM.available() do

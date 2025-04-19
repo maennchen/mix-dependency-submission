@@ -7,7 +7,7 @@ defmodule MixDependencySubmissionTest do
   alias MixDependencySubmission.Submission.Manifest.Dependency
   alias MixDependencySubmission.Util
 
-  doctest MixDependencySubmission
+  doctest MixDependencySubmission, except: [submission: 1]
 
   describe inspect(&MixDependencySubmission.submission/1) do
     @tag :tmp_dir

@@ -1,6 +1,9 @@
 defmodule MixDependencySubmission.Fetcher.MixLock do
   @moduledoc """
-  Fetch Dependencies from mix.lock directly.
+  Fetches dependencies from the `mix.lock` file.
+
+  This module implements the `MixDependencySubmission.Fetcher` behaviour to extract
+  locked dependencies and convert them into the expected internal format.
   """
 
   @behaviour MixDependencySubmission.Fetcher
@@ -9,6 +12,19 @@ defmodule MixDependencySubmission.Fetcher.MixLock do
 
   require Logger
 
+  @doc """
+  Reads and normalizes locked dependencies from the `mix.lock` file.
+
+  Returns `nil` if the lockfile doesn't exist.
+
+  ## Examples
+
+      iex> %{burrito: %{scm: Hex.SCM, mix_lock: [:hex, :burrito | _]}} =
+      ...>   MixDependencySubmission.Fetcher.MixLock.fetch()
+
+  Note: This test assumes an Elixir project that is currently loaded with a
+  `mix.lock` file in place.
+  """
   @impl Fetcher
   def fetch do
     lockfile_name = Mix.Project.config()[:lockfile]
@@ -32,11 +48,13 @@ defmodule MixDependencySubmission.Fetcher.MixLock do
     else
       {:error, reason} ->
         Logger.warning("Failed to read lockfile #{lockfile}, reason: #{inspect(reason, pretty: true)}")
+
         %{}
     end
   end
 
-  @spec normalize_dep(dep :: {Fetcher.app_name(), tuple()}) :: {Fetcher.app_name(), Fetcher.dependency()}
+  @spec normalize_dep(dep :: {Fetcher.app_name(), tuple()}) ::
+          {Fetcher.app_name(), Fetcher.dependency()}
   defp normalize_dep({app, lock} = _dep) do
     scm = Enum.find(Mix.SCM.available(), & &1.format_lock(lock: lock))
 

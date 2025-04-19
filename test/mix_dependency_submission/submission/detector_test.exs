@@ -3,6 +3,8 @@ defmodule MixDependencySubmission.Submission.DetectorTest do
 
   alias MixDependencySubmission.Submission.Detector
 
+  doctest Detector
+
   describe "Jason.Encoder" do
     test "encodes filled struct" do
       detector = %Detector{

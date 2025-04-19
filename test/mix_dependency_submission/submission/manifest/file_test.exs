@@ -3,6 +3,8 @@ defmodule MixDependencySubmission.Submission.Manifest.FileTest do
 
   alias MixDependencySubmission.Submission.Manifest.File
 
+  doctest File
+
   describe "Jason.Encoder" do
     test "encodes filled struct" do
       file = %File{

@@ -1,10 +1,51 @@
 defmodule MixDependencySubmission.CLI.Submit do
-  @moduledoc false
+  @moduledoc """
+  Handles the CLI submit command for Mix Dependency Submission.
+
+  This module parses CLI arguments, builds the dependency submission payload,
+  and sends it to the GitHub Dependency Submission API. It logs relevant details
+  about the submission process and handles success or failure scenarios
+  accordingly.
+  """
+
   alias MixDependencySubmission.ApiClient
   alias MixDependencySubmission.CLI
 
   require Logger
 
+  @doc """
+  Parses command-line arguments and submits the dependency snapshot to the
+  GitHub API.
+
+  This function is intended to be called from the CLI. It:
+
+  - Parses CLI arguments using `Optimus`.
+  - Generates a dependency submission using
+    `MixDependencySubmission.submission/1`.
+  - Logs the resulting submission in pretty-printed JSON.
+  - Sends the submission to GitHub using
+    `MixDependencySubmission.ApiClient.submit/4`.
+  - Logs the response or error and exits with code 0 or 1 accordingly.
+
+  ## Parameters
+
+    - `argv`: A list of command-line argument strings.
+
+  ## Behavior
+
+  This function does not return. It will halt or stop the system depending on
+  the outcome of the submission.
+
+  ## Examples
+
+      iex> MixDependencySubmission.CLI.Submit.run([
+      ...>   "--project-path",
+      ...>   ".",
+      ...>   "--github-repository",
+      ...>   "org/repo"
+      ...> ])
+
+  """
   @spec run(argv :: [String.t()]) :: no_return()
   def run(argv) do
     %Optimus.ParseResult{
