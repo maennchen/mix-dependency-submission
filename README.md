@@ -46,7 +46,7 @@ jobs:
     name: "Report Mix Dependencies"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: erlef/mix-dependency-submission@v1.0.0-beta.8
 ```
 
