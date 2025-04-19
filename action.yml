@@ -1,6 +1,6 @@
 name: "Mix Depdendency Submission"
 description: "Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API"
-author: "Jonatan Männchen"
+author: "Erlang Ecosystem Foundation"
 branding:
   icon: arrow-up
   color: blue
