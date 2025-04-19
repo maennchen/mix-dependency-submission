@@ -27,7 +27,7 @@ runs:
       uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
       with:
         repository: "erlef/mix-dependency-submission"
-        tag: "v1.0.0-beta.7"
+        tag: "v1.0.0-beta.8"
         fileName: "mix_dependency_submission_linux_amd64"
         out-file-path: "${{ runner.temp }}"
     - name: "Verify Dependency Submission Tool Provenance"

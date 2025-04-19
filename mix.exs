@@ -2,7 +2,7 @@
 defmodule MixDependencySubmission.MixProject do
   use Mix.Project
 
-  @version "1.0.0-beta.7"
+  @version "1.0.0-beta.8"
   @source_url "https://github.com/erlef/mix-dependency-submission"
   @description "Calculates dependencies for Mix and submits the list to the GitHub Dependency Submission API"
 
