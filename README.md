@@ -3,15 +3,33 @@
 [![.github/workflows/branch_main.yml](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml/badge.svg)](https://github.com/erlef/mix-dependency-submission/actions/workflows/branch_main.yml)
 [![Coverage Status](https://coveralls.io/repos/github/erlef/mix-dependency-submission/badge.svg?branch=main)](https://coveralls.io/github/erlef/mix-dependency-submission?branch=main)
 
-> Action that calculates dependencies for Mix and submits the list to the
-> GitHub Dependency Submission API.
+This GitHub Action extracts dependencies from an Elixir project using
+[`mix`](https://hexdocs.pm/mix) and submits them to
+[GitHub's Dependency Submission API](https://docs.github.com/en/rest/dependency-graph/dependency-submission),
+helping you unlock advanced dependency graph and security features for your
+project.
 
-To add support for new `Mix.SCM` implementations, see [the documentation][docs].
+## Why Use This?
 
-## Installation
+By submitting your dependencies to GitHub:
 
-This package is not supposed to be installed directly. Use it inside inside your
-GitHub Actions instead.
+- 🔐 **Stay secure** – Receive
+  [Dependabot alerts and security updates](https://docs.github.com/en/code-security/dependabot/dependabot-alerts) for
+  known vulnerabilities in your direct and transitive dependencies.
+- 🔎 **Improve visibility** – View your full dependency graph, including
+  dependencies not found in lockfiles, right on GitHub.
+- 🔁 **Automated updates** – Dependabot can automatically open pull requests to
+  fix vulnerable dependencies.
+- ✅ **Better reviews** – See dependencies in pull request diffs via GitHub’s
+  [Dependency Review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review).
+- 📊 **Support compliance** – Help your team understand and audit what
+  third-party code your software depends on.
+
+## Usage
+
+This action is intended to be used within a GitHub Actions workflow.
+
+### Minimal Example
 
 ```yaml
 on:
@@ -30,25 +48,25 @@ jobs:
       - uses: erlef/mix-dependency-submission@v1.0.0-beta.7
 ```
 
-## Action Configuration
+## Inputs
 
-### Inputs
+| Name           | Description                                                                                 | Default                     |
+|----------------|---------------------------------------------------------------------------------------------|-----------------------------|
+| `token`        | GitHub token to use for submission.                                                         | `${{ github.token }}`       |
+| `project-path` | Path to the Mix project.                                                                    | `${{ github.workspace }}`   |
+| `install-deps` | Whether to run `mix deps.get` before analysis. Set to `true` for accurate transitive info.  | `false`                     |
+| `ignore`       | A comma-separated list of directories to ignore when searching for Mix projects.            | *(none)*                    |
 
-* `token` - GitHub Token to use for the submission. Defaults to `${{ github.token }}`.
-* `project-path` - The path to the the project. Defaults to `${{ github.workspace }}`.
-* `install-deps` - Whether to install the project dependencies. Defaults to `false`.
-  If dependencies are not installed, the tree structure of transitive dependencies
-  and other metadata can't be properly resolved. Enable this setting to get a more
-  accurate submission.
-* `ignore` - Directories to ignore when looking for mix projects. No Default.
+> ⚠️ If `install-deps` is set to `false`, the action may not fully resolve transitive dependencies, leading to an incomplete dependency graph.
 
-### Outputs
+## Outputs
 
-None
+None.
+
 
 ## License
 
-Copyright 2023 JOSHMARTIN GmbH
+Copyright 2023 JOSHMARTIN GmbH  
 Copyright 2025 Erlang Ecosystem Foundation
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,6 +80,3 @@ Copyright 2025 Erlang Ecosystem Foundation
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-
-[docs]: https://hexdocs.pm/mix_dependency_submission
-
